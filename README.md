@@ -1,4 +1,4 @@
-# Cellule v0.0.1 ([MIT](http://www.opensource.org/licenses/mit-license))
+# Cellule v0.0.1
 
 ## What?
 A micro .js lib to help build FSMs
@@ -16,4 +16,4 @@ fsm.input('myInput');
 // 'entering state b' should pop up in the console.
 ```
 
-## License: MIT
+## License: ([MIT](http://www.opensource.org/licenses/mit-license))

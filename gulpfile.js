@@ -14,8 +14,8 @@ gulp.task('test', function(){
 gulp.task('build', function () {
 	gulp.src(['./cellule.js'])
       .pipe(uglify())
-      .pipe(concat('./lib/cellule.min.js'))
-      .pipe(gulp.dest(j('./', cfg.dir.root.dev, cfg.dir.type.js)));
+      .pipe(concat('cellule.min.js'))
+      .pipe(gulp.dest('./lib'));
 });
 
 gulp.task('watch', function(){

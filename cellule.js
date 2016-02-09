@@ -1,19 +1,19 @@
-//UMD definition derived from https://github.com/umdjs/umd/blob/master/templates/commonjsStrictGlobal.js
+//UMD definition derived from https://github.com/postaljs/postal.js/blob/master/src/postal.js
 
-(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
+( function( root, factory ) {
+  if ( typeof define === "function" && define.amd ) {
     // AMD. Register as an anonymous module.
-    define(['exports'], function (exports) {
-      factory((root.commonJsStrictGlobal = exports));
-    });
-  } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
-    // CommonJS
-    factory(exports);
+    define(function() {
+      return factory( root );
+    } );
+  } else if ( typeof module === "object" && module.exports ) {
+    // Node, or CommonJS-Like environments
+    module.exports = factory( this );
   } else {
     // Browser globals
-    factory((root.commonJsStrictGlobal = {}));
+    root.cellule = factory( root );
   }
-}(this, function (exports) {
+}(this, function (gobal, undefined) {
 
   var isObj = function (obj) {return typeof obj === 'object';};
   var isFunc = function (obj) {return typeof obj === 'function';};
@@ -151,6 +151,6 @@
     }
   };
 
-  exports = cellule;
+  return cellule;
 
 }));

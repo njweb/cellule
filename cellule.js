@@ -52,7 +52,8 @@
             var input = i;
             return function (msg) {
               var result = input.activate(msg);
-              return fsm.input(result.input, result.msg);
+              if(result) {return fsm.input(result.input, result.msg);}
+              else throw new Error('Input message validation failed');
             }
           })();
         });

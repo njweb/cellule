@@ -31,7 +31,7 @@
         var _convertStringToInput = function (inputStr) {return cellule.createInput(inputStr);};
         var _createInput = function (input) {
           if (isString(input)) fsm._inputs.push(_convertStringToInput(input));
-          else if (isString(_input._name) && isFunc(input.activate)) {fsm._inputs.push(input);}
+          else if (isInput(input)) {fsm._inputs.push(input);}
         };
 
         fsm.addInput = function (input) {

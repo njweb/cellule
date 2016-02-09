@@ -140,11 +140,11 @@
         };
         this.getName = function () {return this._name;};
         this.toString = function () { return this.getName(); };
-        this.validateMsg = function (validateFunc) {
+        this.validator = function (validateFunc) {
           if (isFunc(validateFunc)) {this._validate = validateFunc;}
           return this;
         };
-        this.transformMsg = function (transformFunc) {
+        this.transformer = function (transformFunc) {
           if (isFunc(transformFunc)) {this._transform = transformFunc;}
           return this;
         };

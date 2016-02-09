@@ -1,7 +1,7 @@
 # Cellule v0.0.1
 
 ## What?
-A micro .js lib to help build FSMs
+A micro js library to help build FSM-like objects
 
 ## Quick Example
 ```javascript
@@ -16,4 +16,4 @@ fsm.input('myInput');
 // 'entering state b' should pop up in the console.
 ```
 
-## License: ([MIT](http://www.opensource.org/licenses/mit-license))
+## License: [MIT](http://www.opensource.org/licenses/mit-license)

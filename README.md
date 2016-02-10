@@ -1,4 +1,4 @@
-# Cellule v0.0.1
+# Cellule v0.0.2
 
 ## What?
 A micro js library to help build FSM-like objects
@@ -13,7 +13,7 @@ var fsm = cellule.createFsm({init: function(){
 
 	this.for.state('stateB')
 		.onEnter(function(){console.log('entering state b');});
-		
+
 }};
 fsm.on.myInput();
 // 'entering state b' should pop up in the console.

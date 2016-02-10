@@ -5,14 +5,17 @@ A micro js library to help build FSM-like objects
 
 ## Quick Example
 ```javascript
-var stateA = cellule.createState('stateA');
-var stateB = cellule.createState('stateB')
-	.onEnter(function(){console.log('entering state b')});
-	
-stateA.handler('myInput', function(){this.transition(stateB)});
+var fsm = cellule.createFsm({init: function(){
 
-var fsm = cellule.createFsm(stateA);
-fsm.input('myInput');
+	this.for.state('stateA')
+		.handle('myInput').with('stateB')
+		.setAsInitialState();
+
+	this.for.state('stateB')
+		.onEnter(function(){console.log('entering state b');});
+		
+}};
+fsm.on.myInput();
 // 'entering state b' should pop up in the console.
 ```
 

@@ -20,6 +20,7 @@ gulp.task('build', function () {
 
 gulp.task('watch', function(){
   gulp.watch('./*.js', ['test']);
+  gulp.watch('./spec/*.js', ['test']);
 });
 
 gulp.task('default', ['build'], function () {});

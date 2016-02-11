@@ -152,7 +152,6 @@
               );
             }
             partialState.handlers.forEach(function (handler) {
-              console.log(JSON.stringify(handler));
               statesProperty[partialState.name].handlers[handler.input] = handler.op;
               if (inputsProperty[handler.input] === undefined) inputsProperty[handler.input] = {name: handler.input};
             });

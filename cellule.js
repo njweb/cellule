@@ -158,25 +158,23 @@
           });
         });
       });
-      inputConstructorArray.forEach(function (nestedA) {
-        nestedA.forEach(function (nestedB) {
-          nestedB.forEach(function (partialInput) {
-            if (inputsProperty[partialInput.name] === undefined) {
-              inputsProperty[partialInput.name] = {name: partialInput.name};
+      inputConstructorArray.forEach(function (nested) {
+        nested.forEach(function (partialInput) {
+          if (inputsProperty[partialInput.name] === undefined) {
+            inputsProperty[partialInput.name] = {name: partialInput.name};
+          }
+          if (partialInput.shouldActivate !== undefined) {
+            if (inputsProperty[partialInput.name].shouldActivate !== undefined) {
+              throw new Error('Cannot redefine "shouldActivate" handler on input: ' + partialInput.name);
             }
-            if (partialInput.shouldActivate !== undefined) {
-              if (inputsProperty[partialInput.name].shouldActivate !== undefined) {
-                throw new Error('Cannot redefine "shouldActivate" handler on input: ' + partialInput.name);
-              }
-              inputsProperty[partialInput.name].shouldActivate = partialInput.shouldActivate;
+            inputsProperty[partialInput.name].shouldActivate = partialInput.shouldActivate;
+          }
+          if (partialInput.onActivate !== undefined) {
+            if (inputsProperty[partialInput.name] !== undefined) {
+              throw new Error('Cannot redefine "onActivate" handler on input: ' + partialInput.name);
             }
-            if (partialInput.onActivate !== undefined) {
-              if (inputsProperty[partialInput.name] !== undefined) {
-                throw new Error('Cannot redefine "onActivate" handler on input: ' + partialInput.name);
-              }
-              inputsProperty[partialInput.name].onActivate = partialInput.onActivate;
-            }
-          });
+            inputsProperty[partialInput.name].onActivate = partialInput.onActivate;
+          }
         });
       });
       if (!isObject(statesProperty[initialState])) throw new Error('An initial state must be declared');

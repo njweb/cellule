@@ -249,10 +249,10 @@
         var handler = celluleObject._currentState.handlers[inputName];
         var _default = celluleObject._currentState.default;
         if (handler !== undefined) {
-          if (isFunc(handler)) { handler(msg);}
-          else if (isString(handler)) {celluleObject.transition(handler);}
+          if (isFunc(handler)) { return handler(msg);}
+          else if (isString(handler)) {return celluleObject.transition(handler);}
         } else if (_default !== undefined) {
-          _default(msg);
+          return _default(msg);
         }
       };
 
@@ -266,7 +266,9 @@
           if (oldState.onExit !== undefined) {
             oldState.onExit();
           }
+          return celluleObject._currentState.name;
         }
+        return undefined;
       };
 
       var constructedProperties = constructor.unpackConstructorArrays();

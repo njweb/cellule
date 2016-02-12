@@ -279,9 +279,11 @@
 
       celluleObject.on = {};
       for (var prop in celluleObject._inputs) {
-        celluleObject.on[prop] = function (msg) {
-          celluleObject.input(prop, msg);
-        }
+        celluleObject.on[prop] = (function(inputName){
+          return function(msg){
+            celluleObject.input(inputName, msg);
+          }
+        })(prop.slice(0));
       }
 
       return celluleObject;

@@ -163,21 +163,24 @@
           if (inputsProperty[partialInput.name] === undefined) {
             inputsProperty[partialInput.name] = {name: partialInput.name};
           }
+          var input = inputsProperty[partialInput.name];
           if (partialInput.shouldActivate !== undefined) {
-            if (inputsProperty[partialInput.name].shouldActivate !== undefined) {
+            if (input.shouldActivate !== undefined) {
               throw new Error('Cannot redefine "shouldActivate" handler on input: ' + partialInput.name);
             }
-            inputsProperty[partialInput.name].shouldActivate = partialInput.shouldActivate;
+            input.shouldActivate = partialInput.shouldActivate;
           }
           if (partialInput.onActivate !== undefined) {
-            if (inputsProperty[partialInput.name] !== undefined) {
+            if (inputs.onActivate !== undefined) {
               throw new Error('Cannot redefine "onActivate" handler on input: ' + partialInput.name);
             }
-            inputsProperty[partialInput.name].onActivate = partialInput.onActivate;
+            input.onActivate = partialInput.onActivate;
           }
         });
       });
       if (!isObject(statesProperty[initialState])) throw new Error('An initial state must be declared');
+
+
       return {
         states: statesProperty,
         inputs: inputsProperty,

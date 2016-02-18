@@ -113,4 +113,72 @@ describe('cellule', function(){
     });
 
   });
+
+  describe('experimental', function(){//TODO remove experimental "describe" section <<<<<<<<<
+    it('should handle this inti func', function(){
+
+      var pAuthenticateUser = function(){};
+      var triggered = false;
+
+      var state = cellule.create({
+        init: function () {
+
+          this.token = null;
+          this._payload = null;
+
+          this.extractPayloadFromToken = function (token) {
+            var segments = token.split('.');
+            if (segments.length !== 3) throw new Error('Incorrectly formatted token');
+            return JSON.parse(atob(segments[1]));
+          };
+          this.getPayload = function () {
+            if (!_.isObject(_payload)) {
+              if (!_.isString(this.token))return null;
+              else this._payload = this.extractPayloadFromToken(this.token);
+            } else return _payload;
+          };
+
+          var fsm = this;
+
+          this.for.state('unauthenticated')
+            .setAsInitialState();
+
+          this.for.state('unauthenticated').and('failed')
+            .handle('authenticate').with(function (msg) {
+            pAuthenticateUser(msg.email, msg.password).then(function (response) {
+              fsm.on.response(response);
+            });
+          });
+
+          this.for.input('authenticate')
+            .shouldActivate(function (msg) {
+              triggered = true;
+              return typeof msg.email === 'string' && typeof msg.password === 'string';
+            });
+
+          this.for.state('authenticating')
+            .handle('response').with(function (msg) {
+            if (msg.token) {
+              fsm.token = msg.token;
+              fsm._payload = null;
+              fsm.transition('authenticated');
+            }
+            else fsm.transition('failed');
+          });
+
+          this.for.state('authenticated')
+            .handle('logout').with(function (msg) {
+            fsm.token = null;
+            fsm._payload = null;
+            fsm.transition('unauthenticated');
+          });
+
+        }
+      });
+
+      state.on.authenticate({});
+
+      expect(triggered).to.be.true;
+    });
+  })
 });

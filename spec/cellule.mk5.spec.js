@@ -1,13 +1,9 @@
 var expect = require('chai').expect;
 var cellule = require('../cellule.mk5.js');
 
-//cellule.createMask({//state parameters}, {//options/lifecycle}}
-//cellule.mask({obj}, celluleMask) -> celluleObject
-//cellule.unmask({celluleObject}) -> obj
-//cellule.runMasked({obj}, celluleMask, function(maskedObject){}) -> obj
-
 describe('cellule mk5', function () {
   it('should sorta basically work', function () {
+
     var myObj = {
       value: 0,
       isRedLightOn: function () {return false;},

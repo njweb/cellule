@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var cellule = require('../cellule.mk5.js');
+var cellule = require('../cellule.js');
 
 describe('cellule mk5', function () {
   it('should sorta basically work', function () {

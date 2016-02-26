@@ -1,41 +1,34 @@
 var isFunction = function (obj) {return typeof obj === 'function';};
 
-var recursiveUnpackFunctionsOnto = function(source, target, original){
-  if(Object.getPrototypeOf(Object.getPrototypeOf(source)) !== null) {
-    recursiveUnpackFunctionsOnto(Object.getPrototypeOf(source), target, original);
-  }
-  Object.getOwnPropertyNames(source).forEach(function(prop){
-    if(isFunction(source[prop])) {
-      target[prop] = source[prop].bind(original);
-    }
-  });
-  return target;
-};
-
 var cellule = {
-  mask: function(obj, mask){
-    var masked = Object.create(obj);
-    //Object.getOwnPropertyNames(mask).forEach(function(prop){
-    //  if(isFunction(mask[prop])) {
-    //    masked[prop] = mask[prop].bind(obj);
-    //  }
-    //});
-    return recursiveUnpackFunctionsOnto(mask, masked, masked);
-  },
-  unmask: function(maskedObj){
-    var unmasked = Object.getPrototypeOf(maskedObj);
-    Object.getOwnPropertyNames(maskedObj).forEach(function(prop){
-      if(!(typeof maskedObj[prop] === 'function')){
-        unmasked[prop] = maskedObj[prop];
+  mask: function (obj, mask) {
+    var masked = Object.create(Object.getPrototypeOf(obj));
+    for (var prop in mask) {
+      if (isFunction(mask[prop])) { masked[prop] = mask[prop]; }
+    }
+    masked.__celluleOriginalObject = obj;
+    masked.__celluleMaskObject = mask;
+    Object.getOwnPropertyNames(obj).forEach(function (prop) {
+      if (!masked.hasOwnProperty(prop)) {
+        if (isFunction(prop)) { masked[prop] = obj[prop];}
+        else {
+          Object.defineProperty(masked, prop, {
+            get: function(){ return masked.__celluleOriginalObject[prop];},
+            set: function(value){ masked.__celluleOriginalObject[prop] = value; },
+            enumerable: true
+          });
+        }
       }
     });
-    return unmasked;
+    return masked;
   },
-  remask: function(maskedObj, nextMask){
-    var obj = this.unmask(maskedObj);
-    return this.mask(obj, nextMask);
+  unmask: function (maskedObj) {
+    return maskedObj.__celluleOriginalObject;
   },
-  runMasked: function(obj, mask, func){
+  replaceMask: function (maskedObj, nextMask) {
+    return this.mask(this.unmask(maskedObj), nextMask);
+  },
+  runMasked: function (obj, mask, func) {
     var masked = this.mask(obj, mask);
     func.call(null, masked);
     return this.unmask(masked);

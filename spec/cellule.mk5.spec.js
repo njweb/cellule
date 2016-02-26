@@ -33,14 +33,12 @@ describe('cellule mk5', function () {
       addValue: {
         writable: true, configurable: true, enumerable: true,
         value: function (newValue) {
-          console.log('HERE2',newValue, this);
           this.setValue(this.value + newValue);
         }
       },
       setValue: {
         writable: true, configurable: true, enumerable: true,
         value: function (newValue) {
-          console.log('HERE'); //TODO remove
           this.value = newValue * 2;
         }
       }
@@ -60,26 +58,41 @@ describe('cellule mk5', function () {
     var myObj = cellule.runMasked(myObj, multiplierMask, function (masked) {
       masked.addValue(10);
       expect(masked.isGreenLightOn()).to.be.true;
-      console.log('HERE', masked.toString());
     });
 
     expect(myObj.isGreenLightOn()).to.be.false;
     expect(myObj.value).to.equal(26);
 
   });
+  it('should handle object inheritance well', function () {
+    var rootObj = {
+      respond: function () {return 'abc';}
+    };
+    var myObj = Object.create(rootObj);
+    myObj.respond = function () {return Object.getPrototypeOf(this).respond() + 'def';};
+
+    expect(myObj.respond()).to.equal('abcdef');
+
+    var maskedObj = cellule.mask(myObj, {
+      speak: function(){
+        return this.respond() + 'ghi';
+      }
+    });
+
+    expect(maskedObj.speak()).to.equal('abcdefghi');
+  });
   it('should be able to setup mask enter and exit handlers', function () {
-    var myObj = {value: 0};
+    var myObj = {value: -1};
 
     var lifecycleCellule = cellule.mask(cellule, {
       mask: function (obj, mask) {
-        console.log(this);
-        var masked = Object.getPrototypeOf(this).mask(obj, mask);
+        var masked = cellule.mask(obj, mask);
         if (typeof mask._onEnter === 'function') mask._onEnter(masked);
         return masked;
       },
       unmask: function (maskedObj) {
         if (typeof maskedObj._onExit === 'function') maskedObj._onExit(maskedObj);
-        return Object.getPrototypeOf(this).unmask(maskedObj);
+        return cellule.unmask(maskedObj);
       }
     });
 
@@ -89,10 +102,13 @@ describe('cellule mk5', function () {
     var simpleMask = {
       _onEnter: function () {triggerEnter = true;},
       _onExit: function () {triggerExit = true;},
-      addValue: function () { this.value += 1; }
+      addValue: function () {
+        this.value += 2;
+      }
     };
 
     var maskedObj = lifecycleCellule.mask(myObj, simpleMask);
+
     maskedObj.addValue();
     myObj = lifecycleCellule.unmask(maskedObj);
 

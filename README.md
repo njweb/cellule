@@ -1,22 +1,17 @@
 # Cellule v0.0.2
 
 ## What?
-A micro js library to help build FSM-like objects
+A micro js library to help build FSM-like objects through object behavior masking
 
 ## Quick Example
 ```javascript
-var fsm = cellule.createFsm({init: function(){
-
-	this.for.state('stateA')
-		.handle('myInput').with('stateB')
-		.setAsInitialState();
-
-	this.for.state('stateB')
-		.onEnter(function(){console.log('entering state b');});
-
-}};
-fsm.on.myInput();
-// 'entering state b' should pop up in the console.
+var myObj = {
+    value: 'hello',
+    speak: function(){ return this.value; }
+};
+var myMask = { speak: function() {return this.value + ' world'; }
+var myMaskedObj = cellule.mask(myObj, myMask);
+myMaskedObj.speak(); //Prints "hello world"
 ```
 
 ## License: [MIT](http://www.opensource.org/licenses/mit-license)

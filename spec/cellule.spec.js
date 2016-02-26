@@ -1,184 +1,115 @@
 var expect = require('chai').expect;
-var cellule = require('../cellule.js');
+var cellule = require('../cellule.mk5.js');
 
-describe('cellule', function(){
-  describe('create function', function(){
-    it('should throw an error if no init function is provided', function(){
-      expect(cellule.create).to.throw(Error);
-      expect(cellule.create.bind(this, {init: 'str'})).to.throw(Error);
-      expect(cellule.create.bind(this, {init: 5})).to.throw(Error);
-      expect(cellule.create.bind(this, {init: {}})).to.throw(Error);
-    });
-  });
-  describe('states', function(){
+describe('cellule mk5', function () {
+  it('should sorta basically work', function () {
 
-    it('should store states provided through the "this.for.state" pattern', function(){
-      var c = cellule.create({init: function(){
-        this.for.state('a').setAsInitialState();
-      }});
-      expect(cellule.hasState(c, 'a')).to.be.true;
-    });
+    var myObj = {
+      value: 0,
+      isRedLightOn: function () {return false;},
+      isGreenLightOn: function () {return false},
+      reset: function () {this.value = 0;},
+      setValue: function (newValue) {this.value = newValue;},
+      toString: function () {return 'R:' + this.isRedLightOn() + '  G:' + this.isGreenLightOn()}
+    };
 
-    it('should allow multiple states to be defined through the "this.for.state("...").and("...") pattern', function(){
-      var c = cellule.create({init: function(){
-        this.for.state('a').and('b');
-        this.for.state('a').setAsInitialState();
-      }});
-      expect(cellule.hasState(c, 'a')).to.be.true;
-      expect(cellule.hasState(c, 'b')).to.be.true;
+    var rootMask = {
+      isRedLightOn: function () { return this.value > 0;},
+      isGreenLightOn: function () {return this.value > 20;}
+    };
+
+    var simpleMask = Object.create(rootMask, {
+      addValue: {
+        writable: true, configurable: true, enumerable: true,
+        value: function (newValue) { this.setValue(this.value + newValue); }
+      }
     });
 
-    it('should prevent a non-function value to be provided as the handler of an onEnter event', function(){
-      expect(cellule.create.bind({init: function(){
-        this.for.state('a').onEnter('abc').setAsInitialState();
-      }})).to.throw(Error);
-      expect(cellule.create.bind({init: function(){
-        this.for.state('a').onEnter(5).setAsInitialState();
-      }})).to.throw(Error);
-      expect(cellule.create.bind({init: function(){
-        this.for.state('a').onEnter({}).setAsInitialState();
-      }})).to.throw(Error);
-    });
-
-    it('should prevent a non-function value to be provided as the handler of an onExit event', function(){
-      expect(cellule.create.bind({init: function(){
-        this.for.state('a').onExit('abc').setAsInitialState();
-      }})).to.throw(Error);
-      expect(cellule.create.bind({init: function(){
-        this.for.state('a').onExit(5).setAsInitialState();
-      }})).to.throw(Error);
-      expect(cellule.create.bind({init: function(){
-        this.for.state('a').onExit({}).setAsInitialState();
-      }})).to.throw(Error);
-    });
-
-    it('should prevent a value that is not a function or a string ' +
-      'from being provided as the handler of an input', function(){
-      expect(cellule.create.bind({init: function(){
-        this.for.state('a').handle('b').with(5).setAsInitialState();
-      }})).to.throw(Error);
-      expect(cellule.create.bind({init: function(){
-        this.for.state('a').handle('b').with({}).setAsInitialState();
-      }})).to.throw(Error);
-    })
-
-  });
-  describe('inputs', function(){
-
-    it('should store inputs that states have been created to handle', function(){
-      var c = cellule.create({init: function(){
-        this.for.state('a').handle('b').with(function(){});
-        this.for.state('a').setAsInitialState();
-      }});
-      expect(cellule.hasInput(c, 'b')).to.be.true;
-    });
-
-  });
-  describe('fsm', function(){
-
-    it('should be able to define two states and an input handler that transitions between them', function(){
-      var c = cellule.create({init: function(){
-        var fsm = this;
-        this.for.state('a').handle('input').with(function(){fsm.transition('b')}).setAsInitialState();
-        this.for.state('b');
-      }});
-      c.on.input();
-      expect(cellule.getCurrentStateName(c)).to.equal('b');
-    });
-
-    it('should trigger a state\'s onExit handler when a state is transitioned away from', function(){
-      var triggered = false;
-      var c = cellule.create({init: function(){
-        var fsm = this;
-        this.for.state('a')
-          .handle('input').with(function(){fsm.transition('b')})
-          .setAsInitialState();
-        this.for.state('b').onEnter(function(){triggered = true;});
-      }});
-      c.on.input();
-      expect(triggered).to.be.true;
-    });
-
-    it('should trigger a state\'s onEnter handler when a state is transitioned to', function(){
-      var triggered = false;
-      var c = cellule.create({init: function(){
-        var fsm = this;
-        this.for.state('a').handle('input').with(function(){
-          fsm.transition('b');
-        }).setAsInitialState();
-        this.for.state('b').onEnter(function(){triggered = true;})
-      }});
-      c.on.input();
-      expect(triggered).to.be.true;
-    });
-
-  });
-
-  describe('experimental', function(){//TODO remove experimental "describe" section <<<<<<<<<
-    it('should handle this inti func', function(){
-
-      var pAuthenticateUser = function(){};
-      var triggered = false;
-
-      var state = cellule.create({
-        init: function () {
-
-          this.token = null;
-          this._payload = null;
-
-          this.extractPayloadFromToken = function (token) {
-            var segments = token.split('.');
-            if (segments.length !== 3) throw new Error('Incorrectly formatted token');
-            return JSON.parse(atob(segments[1]));
-          };
-          this.getPayload = function () {
-            if (!_.isObject(_payload)) {
-              if (!_.isString(this.token))return null;
-              else this._payload = this.extractPayloadFromToken(this.token);
-            } else return _payload;
-          };
-
-          var fsm = this;
-
-          this.for.state('unauthenticated')
-            .setAsInitialState();
-
-          this.for.state('unauthenticated').and('failed')
-            .handle('authenticate').with(function (msg) {
-            pAuthenticateUser(msg.email, msg.password).then(function (response) {
-              fsm.on.response(response);
-            });
-          });
-
-          this.for.input('authenticate')
-            .shouldActivate(function (msg) {
-              triggered = true;
-              return typeof msg.email === 'string' && typeof msg.password === 'string';
-            });
-
-          this.for.state('authenticating')
-            .handle('response').with(function (msg) {
-            if (msg.token) {
-              fsm.token = msg.token;
-              fsm._payload = null;
-              fsm.transition('authenticated');
-            }
-            else fsm.transition('failed');
-          });
-
-          this.for.state('authenticated')
-            .handle('logout').with(function (msg) {
-            fsm.token = null;
-            fsm._payload = null;
-            fsm.transition('unauthenticated');
-          });
-
+    var multiplierMask = Object.create(rootMask, {
+      addValue: {
+        writable: true, configurable: true, enumerable: true,
+        value: function (newValue) {
+          this.setValue(this.value + newValue);
         }
-      });
-
-      state.on.authenticate({});
-
-      expect(triggered).to.be.true;
+      },
+      setValue: {
+        writable: true, configurable: true, enumerable: true,
+        value: function (newValue) {
+          this.value = newValue * 2;
+        }
+      }
     });
+
+    var cObj = cellule.mask(myObj, simpleMask);
+
+    expect(cObj.isRedLightOn()).to.be.false;
+    cObj.addValue(3);
+    expect(cObj.isRedLightOn()).to.be.true;
+
+    myObj = cellule.unmask(cObj);
+    expect(myObj.isRedLightOn()).to.be.false;
+
+    expect(myObj.value).to.equal(3);
+
+    var myObj = cellule.runMasked(myObj, multiplierMask, function (masked) {
+      masked.addValue(10);
+      expect(masked.isGreenLightOn()).to.be.true;
+    });
+
+    expect(myObj.isGreenLightOn()).to.be.false;
+    expect(myObj.value).to.equal(26);
+
+  });
+  it('should handle object inheritance well', function () {
+    var rootObj = {
+      respond: function () {return 'abc';}
+    };
+    var myObj = Object.create(rootObj);
+    myObj.respond = function () {return Object.getPrototypeOf(this).respond() + 'def';};
+
+    expect(myObj.respond()).to.equal('abcdef');
+
+    var maskedObj = cellule.mask(myObj, {
+      speak: function(){
+        return this.respond() + 'ghi';
+      }
+    });
+
+    expect(maskedObj.speak()).to.equal('abcdefghi');
+  });
+  it('should be able to setup mask enter and exit handlers', function () {
+    var myObj = {value: -1};
+
+    var lifecycleCellule = cellule.mask(cellule, {
+      mask: function (obj, mask) {
+        var masked = cellule.mask(obj, mask);
+        if (typeof mask._onEnter === 'function') mask._onEnter(masked);
+        return masked;
+      },
+      unmask: function (maskedObj) {
+        if (typeof maskedObj._onExit === 'function') maskedObj._onExit(maskedObj);
+        return cellule.unmask(maskedObj);
+      }
+    });
+
+    var triggerEnter = false;
+    var triggerExit = false;
+
+    var simpleMask = {
+      _onEnter: function () {triggerEnter = true;},
+      _onExit: function () {triggerExit = true;},
+      addValue: function () {
+        this.value += 2;
+      }
+    };
+
+    var maskedObj = lifecycleCellule.mask(myObj, simpleMask);
+
+    maskedObj.addValue();
+    myObj = lifecycleCellule.unmask(maskedObj);
+
+    expect(myObj.value).to.equal(1);
+    expect(triggerEnter).to.be.true;
+    expect(triggerExit).to.be.true;
   })
 });

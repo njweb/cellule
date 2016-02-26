@@ -1,4 +1,4 @@
-# Cellule v0.0.2
+# Cellule v0.0.3
 
 ## What?
 A micro js library to help build FSM-like objects through object behavior masking

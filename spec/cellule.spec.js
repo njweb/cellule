@@ -1,115 +1,73 @@
 var expect = require('chai').expect;
 var cellule = require('../cellule.js');
 
-describe('cellule mk5', function () {
+var celluleMk6 = require('../celluleMk6.js');
+
+describe('cellule mk6', function () {
   it('should sorta basically work', function () {
-
-    var myObj = {
-      value: 0,
-      isRedLightOn: function () {return false;},
-      isGreenLightOn: function () {return false},
-      reset: function () {this.value = 0;},
-      setValue: function (newValue) {this.value = newValue;},
-      toString: function () {return 'R:' + this.isRedLightOn() + '  G:' + this.isGreenLightOn()}
-    };
-
-    var rootMask = {
-      isRedLightOn: function () { return this.value > 0;},
-      isGreenLightOn: function () {return this.value > 20;}
-    };
-
-    var simpleMask = Object.create(rootMask, {
-      addValue: {
-        writable: true, configurable: true, enumerable: true,
-        value: function (newValue) { this.setValue(this.value + newValue); }
-      }
-    });
-
-    var multiplierMask = Object.create(rootMask, {
-      addValue: {
-        writable: true, configurable: true, enumerable: true,
-        value: function (newValue) {
-          this.setValue(this.value + newValue);
+    var celluleApi = cellule({
+      locked: {
+        _isRoot: true,
+        insertCoin: function (ops) {
+          ops.setState('unlocked');
+          return 'accepted';
+        },
+        pushHandle: function () {
+          return 'block';
         }
       },
-      setValue: {
-        writable: true, configurable: true, enumerable: true,
-        value: function (newValue) {
-          this.value = newValue * 2;
+      unlocked: {
+        insertCoin: function () {
+          return 'rejected';
+        },
+        pushHandle: function (ops) {
+          ops.setState('locked');
+          return 'turn';
         }
       }
     });
 
-    var cObj = cellule.mask(myObj, simpleMask);
 
-    expect(cObj.isRedLightOn()).to.be.false;
-    cObj.addValue(3);
-    expect(cObj.isRedLightOn()).to.be.true;
-
-    myObj = cellule.unmask(cObj);
-    expect(myObj.isRedLightOn()).to.be.false;
-
-    expect(myObj.value).to.equal(3);
-
-    var myObj = cellule.runMasked(myObj, multiplierMask, function (masked) {
-      masked.addValue(10);
-      expect(masked.isGreenLightOn()).to.be.true;
-    });
-
-    expect(myObj.isGreenLightOn()).to.be.false;
-    expect(myObj.value).to.equal(26);
-
+    expect(celluleApi.pushHandle()).to.equal('block');
+    expect(celluleApi.insertCoin()).to.equal('accepted');
+    expect(celluleApi.insertCoin()).to.equal('rejected');
+    expect(celluleApi.pushHandle()).to.equal('turn');
+    expect(celluleApi.pushHandle()).to.equal('block');
   });
-  it('should handle object inheritance well', function () {
-    var rootObj = {
-      respond: function () {return 'abc';}
-    };
-    var myObj = Object.create(rootObj);
-    myObj.respond = function () {return Object.getPrototypeOf(this).respond() + 'def';};
 
-    expect(myObj.respond()).to.equal('abcdef');
-
-    var maskedObj = cellule.mask(myObj, {
-      speak: function(){
-        return this.respond() + 'ghi';
-      }
-    });
-
-    expect(maskedObj.speak()).to.equal('abcdefghi');
-  });
-  it('should be able to setup mask enter and exit handlers', function () {
-    var myObj = {value: -1};
-
-    var lifecycleCellule = cellule.mask(cellule, {
-      mask: function (obj, mask) {
-        var masked = cellule.mask(obj, mask);
-        if (typeof mask._onEnter === 'function') mask._onEnter(masked);
-        return masked;
+  it('should basically work MK6', function () {
+    var state = 'locked';
+    var api = null;
+    var celluleInstance = celluleMk6({
+      insertCoin: function (instance) {
+        instance.setState('unlocked');
+        return 'accept';
       },
-      unmask: function (maskedObj) {
-        if (typeof maskedObj._onExit === 'function') maskedObj._onExit(maskedObj);
-        return cellule.unmask(maskedObj);
+      pushHandle: function () {
+        return 'block';
       }
-    });
-
-    var triggerEnter = false;
-    var triggerExit = false;
-
-    var simpleMask = {
-      _onEnter: function () {triggerEnter = true;},
-      _onExit: function () {triggerExit = true;},
-      addValue: function () {
-        this.value += 2;
+    }).exceptWhen('unlocked').then({
+      insertCoin: function () {
+        return 'reject';
+      },
+      pushHandle: function (instance) {
+        instance.setState('locked');
+        return 'turn';
       }
-    };
+    }).onStateChanged(function (nextState, instance) {
+      state = nextState;
+      api = instance.forState(state);
+    }).done();
 
-    var maskedObj = lifecycleCellule.mask(myObj, simpleMask);
+    api = celluleInstance.forState('locked');
 
-    maskedObj.addValue();
-    myObj = lifecycleCellule.unmask(maskedObj);
+    expect(api.pushHandle()).to.equal('block');
+    expect(api.insertCoin()).to.equal('accept');
+    expect(api.insertCoin()).to.equal('reject');
+    expect(api.pushHandle()).to.equal('turn');
+    expect(api.pushHandle()).to.equal('block');
 
-    expect(myObj.value).to.equal(1);
-    expect(triggerEnter).to.be.true;
-    expect(triggerExit).to.be.true;
-  })
+  });
+
+
 });

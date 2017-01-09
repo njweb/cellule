@@ -36,7 +36,7 @@ describe('cellule mk6', function () {
   });
 
   it('should basically work MK6', function () {
-    var state = 'locked';
+    
     var api = null;
     var celluleInstance = celluleMk6({
       insertCoin: function (instance) {
@@ -55,8 +55,7 @@ describe('cellule mk6', function () {
         return 'turn';
       }
     }).onStateChanged(function (nextState, instance) {
-      state = nextState;
-      api = instance.forState(state);
+      api = instance.forState(nextState);
     }).done();
 
     api = celluleInstance.forState('locked');

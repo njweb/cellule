@@ -30,8 +30,8 @@ const bindEventHandlerToFsmObject = (eventHandler, fsmObject) => {
   };
 };
 
-const createStatusEntry = (statusKey, statusProp, fsmObject, defaultObject) => {
-  const statusEntry = defaultObject ? Object.create(defaultObject) : {};
+const createStatusEntry = (statusKey, statusProp, fsmObject, prototypeObject) => {
+  const statusEntry = prototypeObject ? Object.create(prototypeObject) : {};
   statusEntry.event = (eventKey, parameters) => statusEntry[`$${eventKey}`](statusKey, [], parameters);
   return Object.entries(statusProp).reduce((statusAcc, [handlerKey, handlerProp]) => {
     if (handlerKey === 'event') throw Error(`The key "event" is reserved. Erroneously defined in "${statusKey}"`);
@@ -51,7 +51,9 @@ const createStatusEntry = (statusKey, statusProp, fsmObject, defaultObject) => {
 const cellule = description => {
   if(typeof description !== 'object') throw Error('Must provide an object type for the description argument');
   let celluleObject = {};
-  const defaultStatusObject = description.$default ? createStatusEntry('$default', description.$default, celluleObject) : undefined;
+  const defaultStatusObject = description.$default ?
+    createStatusEntry('$default', description.$default, celluleObject)
+    : undefined;
   if (defaultStatusObject) {
     celluleObject.$default = defaultStatusObject;
   }

@@ -236,6 +236,29 @@ describe('cellule', function () {
       expect(exitParameterSpy.mock.calls[0][0]).toEqual(testParameters);
     });
   });
+  describe('default behavior', () => {
+    it('should provide the default value for a status property if the property is not defined for that status', () => {
+      const fsmDescription = {
+        $default: {
+          value: 'abc'
+        },
+        status1: {}
+      };
+      const resultValue = cellule(fsmDescription).status1.value;
+      expect(resultValue).toBe('abc');
+    });
+    it('should use the default behavior for event handlers if a handler is not present on the active status', () => {
+      const fsmDescription = {
+        $default: {
+          $action: () => 'status2'
+        },
+        status1: {},
+        status2: {}
+      };
+      const [statusResult] = cellule(fsmDescription).status1.event('action');
+      expect(statusResult).toBe('status2');
+    });
+  });
   describe('handling exceptions', () => {
     [() => ({}), 51, 'abc', null].forEach(value => {
       it(`should throw an error if not provided an object type description argument. argument: ${value}`, () => {

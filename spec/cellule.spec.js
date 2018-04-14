@@ -22,6 +22,17 @@ describe('cellule', function () {
       const result = cellule(fsmDescription);
       expect(Object.keys(result).length).toBe(0);
     });
+    it('should allow status object values that are not prefixed with "$" to be accessed through the cellule object', () => {
+      const fsmDescription = {
+        status1: {
+          valueA: 'abc',
+          valueB: () => 'def'
+        }
+      };
+      const celluleObject = cellule(fsmDescription);
+      expect(celluleObject.status1.valueA).toBe('abc');
+      expect(celluleObject.status1.valueB()).toBe('def');
+    })
   });
   describe('status transitions', () => {
     it('should be able to transition between statuses', () => {
@@ -84,7 +95,7 @@ describe('cellule', function () {
         },
         statusFinal: {}
       };
-      const [statusResult] = cellule(fsmDescription).status1.event('action');
+      cellule(fsmDescription).status1.event('action');
       expect(exitMockFunction.mock.calls.length).toBe(0);
     });
     it('should call the $enter handler of a status when transitioning because of an $enter handler', () => {
@@ -136,7 +147,7 @@ describe('cellule', function () {
           $action: emit => emit('abc')
         }
       };
-      const [_, emittedValues] = cellule(fsmDescription).status1.event('action');
+      const [, emittedValues] = cellule(fsmDescription).status1.event('action');
       expect(emittedValues).toEqual(['abc']);
     });
     it('should provide the $exit handler with a function for emitting values', () => {
@@ -147,7 +158,7 @@ describe('cellule', function () {
         },
         status2: {}
       };
-      const [_, emittedValues] = cellule(fsmDescription).status1.event('action');
+      const [, emittedValues] = cellule(fsmDescription).status1.event('action');
       expect(emittedValues).toEqual(['abc']);
     });
     it('should provide the $enter handler with a function for emitting values', () => {
@@ -159,7 +170,7 @@ describe('cellule', function () {
           $enter: emit => emit('abc')
         }
       };
-      const [_, emittedValues] = cellule(fsmDescription).status1.event('action');
+      const [, emittedValues] = cellule(fsmDescription).status1.event('action');
       expect(emittedValues).toEqual(['abc']);
     });
     it('should collect all the values passed to the emit function across handlers', () => {
@@ -175,7 +186,7 @@ describe('cellule', function () {
           $enter: emit => emit('hij')
         }
       };
-      const [_, emittedValues] = cellule(fsmDescription).status1.event('action');
+      const [, emittedValues] = cellule(fsmDescription).status1.event('action');
       expect(emittedValues).toEqual(['abc', 'def', 'hij']);
     });
   });

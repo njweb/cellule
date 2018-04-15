@@ -1,6 +1,6 @@
 {
   "name": "cellule",
-  "version": "0.0.3",
+  "version": "0.2.0",
   "description": "Micro Immutable FSM library",
   "repository": {
     "type": "git",

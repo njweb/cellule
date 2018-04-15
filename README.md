@@ -1,4 +1,4 @@
-# Cellule v0.0.3
+# Cellule
 
 ## What?
 A micro js library to help build FSM-like objects with immutable behavior

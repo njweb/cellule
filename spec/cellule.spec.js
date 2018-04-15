@@ -42,7 +42,7 @@ describe('cellule', function () {
         },
         status2: {}
       };
-      const [statusResult] = cellule(fsmDescription).status1.event('action');
+      const [statusResult] = cellule(fsmDescription).status1.$event.action();
       expect(statusResult).toBe('status2');
     });
     it('should call the $exit handler when leaving a status', () => {
@@ -54,7 +54,7 @@ describe('cellule', function () {
         },
         status2: {}
       };
-      cellule(fsmDescription).status1.event('action');
+      cellule(fsmDescription).status1.$event.action();
       expect(exitMockFunction.mock.calls.length).toBe(1);
     });
     it('should call the $enter handler when entering a status', () => {
@@ -67,7 +67,7 @@ describe('cellule', function () {
           $enter: enterMockFunction
         }
       };
-      cellule(fsmDescription).status1.event('action');
+      cellule(fsmDescription).status1.$event.action();
       expect(enterMockFunction.mock.calls.length).toBe(1);
     });
     it('should be able to transition status from the return value of an $enter handler', () => {
@@ -80,7 +80,7 @@ describe('cellule', function () {
         },
         statusFinal: {}
       };
-      const [statusResult] = cellule(fsmDescription).status1.event('action');
+      const [statusResult] = cellule(fsmDescription).status1.$event.action();
       expect(statusResult).toBe('statusFinal');
     });
     it('should not call the $exit handler of a status when transitioning because of an $enter handler', () => {
@@ -95,7 +95,7 @@ describe('cellule', function () {
         },
         statusFinal: {}
       };
-      cellule(fsmDescription).status1.event('action');
+      cellule(fsmDescription).status1.$event.action();
       expect(exitMockFunction.mock.calls.length).toBe(0);
     });
     it('should call the $enter handler of a status when transitioning because of an $enter handler', () => {
@@ -111,7 +111,7 @@ describe('cellule', function () {
           $enter: enterMockFunction
         }
       };
-      cellule(fsmDescription).status1.event('action');
+      cellule(fsmDescription).status1.$event.action();
       expect(enterMockFunction.mock.calls.length).toBe(1);
     });
     it('should pass the next status to the $exit handler when transitioning', () => {
@@ -123,7 +123,7 @@ describe('cellule', function () {
         },
         status2: {}
       };
-      cellule(fsmDescription).status1.event('action');
+      cellule(fsmDescription).status1.$event.action();
       expect(statusSpy.mock.calls[0][0]).toBe('status2');
     });
     it('should pass the previous status to the $enter handler when transitioning', () => {
@@ -136,7 +136,7 @@ describe('cellule', function () {
           $enter: (_, previousStatus) => statusSpy(previousStatus)
         }
       };
-      cellule(fsmDescription).status1.event('action');
+      cellule(fsmDescription).status1.$event.action();
       expect(statusSpy.mock.calls[0][0]).toBe('status1');
     });
   });
@@ -147,7 +147,7 @@ describe('cellule', function () {
           $action: emit => emit('abc')
         }
       };
-      const [, emittedValues] = cellule(fsmDescription).status1.event('action');
+      const [, emittedValues] = cellule(fsmDescription).status1.$event.action();
       expect(emittedValues).toEqual(['abc']);
     });
     it('should provide the $exit handler with a function for emitting values', () => {
@@ -158,7 +158,7 @@ describe('cellule', function () {
         },
         status2: {}
       };
-      const [, emittedValues] = cellule(fsmDescription).status1.event('action');
+      const [, emittedValues] = cellule(fsmDescription).status1.$event.action();
       expect(emittedValues).toEqual(['abc']);
     });
     it('should provide the $enter handler with a function for emitting values', () => {
@@ -170,7 +170,7 @@ describe('cellule', function () {
           $enter: emit => emit('abc')
         }
       };
-      const [, emittedValues] = cellule(fsmDescription).status1.event('action');
+      const [, emittedValues] = cellule(fsmDescription).status1.$event.action();
       expect(emittedValues).toEqual(['abc']);
     });
     it('should collect all the values passed to the emit function across handlers', () => {
@@ -186,7 +186,7 @@ describe('cellule', function () {
           $enter: emit => emit('hij')
         }
       };
-      const [, emittedValues] = cellule(fsmDescription).status1.event('action');
+      const [, emittedValues] = cellule(fsmDescription).status1.$event.action();
       expect(emittedValues).toEqual(['abc', 'def', 'hij']);
     });
   });
@@ -201,7 +201,7 @@ describe('cellule', function () {
         }
       };
       const testParameters = {value: 'information'};
-      cellule(fsmDescription).status1.event('action', testParameters);
+      cellule(fsmDescription).status1.$event.action(testParameters);
       expect(parameterSpy.mock.calls[0][0]).toEqual(testParameters);
     });
     it('should send to the $exit handler the parameters passed to the event function', () => {
@@ -214,7 +214,7 @@ describe('cellule', function () {
         status2: {}
       };
       const testParameters = {value: 'information'};
-      cellule(fsmDescription).status1.event('action', testParameters);
+      cellule(fsmDescription).status1.$event.action(testParameters);
       expect(parameterSpy.mock.calls[0][0]).toEqual(testParameters);
     });
     it('should send to the $enter handler the parameters passed to the event function', () => {
@@ -228,7 +228,7 @@ describe('cellule', function () {
         }
       };
       const testParameters = {value: 'information'};
-      cellule(fsmDescription).status1.event('action', testParameters);
+      cellule(fsmDescription).status1.$event.action(testParameters);
       expect(parameterSpy.mock.calls[0][0]).toEqual(testParameters);
     });
     it('should sent the $enter handler the returned value from the $exit handler', () => {
@@ -243,7 +243,7 @@ describe('cellule', function () {
           $enter: (_, __, ___, exitParameters) => exitParameterSpy(exitParameters)
         }
       };
-      cellule(fsmDescription).status1.event('action', testParameters);
+      cellule(fsmDescription).status1.$event.action(testParameters);
       expect(exitParameterSpy.mock.calls[0][0]).toEqual(testParameters);
     });
   });
@@ -266,7 +266,7 @@ describe('cellule', function () {
         status1: {},
         status2: {}
       };
-      const [statusResult] = cellule(fsmDescription).status1.event('action');
+      const [statusResult] = cellule(fsmDescription).status1.$event.action();
       expect(statusResult).toBe('status2');
     });
   });
@@ -277,10 +277,10 @@ describe('cellule', function () {
         expect(setup).toThrow();
       });
     });
-    it('should throw if the description attempts to define an "event" property on a status', () => {
+    it('should throw if the description attempts to define an "$event" property on a status', () => {
       const fsmDescription = {
         status1: {
-          event: 'abc'
+          $event: 'abc'
         }
       };
       const setup = () => cellule(fsmDescription);
@@ -293,7 +293,7 @@ describe('cellule', function () {
             $action: () => value
           }
         };
-        const runEvent = () => cellule(fsmDescription).status1.event('action');
+        const runEvent = () => cellule(fsmDescription).status1.$event.action();
         expect(runEvent).toThrow();
       });
     });
@@ -303,7 +303,7 @@ describe('cellule', function () {
           $action: () => 'status2'
         }
       };
-      const runEvent = () => cellule(fsmDescription).status1.event('action');
+      const runEvent = () => cellule(fsmDescription).status1.$event.action();
       expect(runEvent).toThrow();
     });
     it('should throw an error if an $enter handler redirection creates a loop between statuses', () => {
@@ -318,7 +318,7 @@ describe('cellule', function () {
           $enter: () => 'status1'
         }
       };
-      const runEvent = () => cellule(fsmDescription).status1.event('action');
+      const runEvent = () => cellule(fsmDescription).status1.$event.action();
       expect(runEvent).toThrow();
     });
   });

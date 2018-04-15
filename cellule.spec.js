@@ -1,4 +1,4 @@
-import cellule from '../cellule'
+import cellule from './cellule'
 
 describe('cellule', function () {
   describe('setup', () => {
